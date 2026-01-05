@@ -311,7 +311,7 @@ do
                 fi
 
             fi
-            read -p "Press Enter to continue..."s
+            read -p "Press Enter to continue..."
             ;;
         "Delete row")
             echo -e "${CYAN}Action: Deleting row...${RESET}"
@@ -361,10 +361,15 @@ do
                             colType=$(echo "$tableMetaData"| awk -F: -v col=$updateCol '($2==col) {print $1}')
                             colIndex=$(echo "$tableMetaData"| awk -F: -v col=$updateCol '($2==col) {print NR}')
                             read -p "Enter new value: " newValue
-                            awk -F';' -v OFS=';' -v idx=$colIndex -v pk=$colValue -v new=$newValue '($1==pk){$idx=new}{print}' "$CURRENT_DB/$tableName" > "$CURRENT_DB/$tableName.tmp" && mv "$CURRENT_DB/$tableName.tmp" "$CURRENT_DB/$tableName"
-                            echo -e "${GREEN}✅ Cell updated.${RESET}"
+                            validateType "$newValue" "$colType"
+                            if [ $? -ne 0 ]; then
+                                echo -e "${RED}Invalid column type.${RESET}"
+                            else
+                                awk -F';' -v OFS=';' -v idx=$colIndex -v pk=$colValue -v new=$newValue '($1==pk){$idx=new}{print}' "$CURRENT_DB/$tableName" > "$CURRENT_DB/$tableName.tmp" && mv "$CURRENT_DB/$tableName.tmp" "$CURRENT_DB/$tableName"
+                                echo -e "${GREEN}✅ Cell updated.${RESET}"
+                            fi  
                         else
-                            echo -e "${RED}Invalid column.${RESET}"
+                            echo -e "${RED}Invalid column type.${RESET}"
                         fi
                     else
                         echo -e "${RED}Primary key not found.${RESET}"
