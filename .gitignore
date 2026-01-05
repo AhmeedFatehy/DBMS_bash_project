@@ -8,4 +8,4 @@ Thumbs.db
 *.swp
 
 # Ignore the actual database storage folder
-data/
+databases/
